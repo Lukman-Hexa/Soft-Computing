@@ -1,14 +1,16 @@
 ## 🚀 Cara Penggunaan
 
 1. Instal dependensi Python:
+   
    pip install flask numpy
    
 3. Jalankan server Python:
+   
    python app.py
    
    [http://localhost:5000](http://localhost:5000)
 
-4. Gunakan tab untuk beralih antar kasus:
+5. Gunakan tab untuk beralih antar kasus:
 
    - **Tab PSO - Optimasi Produksi**  
      Isi parameter dan klik **"Jalankan Optimasi PSO"**
