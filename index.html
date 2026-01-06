@@ -1,0 +1,1198 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PSO, Bayesian & Markov Chain</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --success: #2ecc71;
+            --warning: #f39c12;
+            --info: #9b59b6;
+            --purple: #8e44ad;
+            --green: #27ae60;
+            --orange: #e67e22;
+            --red: #e74c3c;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            color: var(--dark);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            padding: 2rem 0;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .tabs {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            background: #ddd;
+            color: var(--dark);
+        }
+
+        .tab-btn.active {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--secondary);
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            color: var(--primary);
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background-color: var(--secondary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+
+        .btn-success {
+            background-color: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #27ae60;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: var(--primary);
+            color: white;
+            font-weight: 600;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+
+        .result-container {
+            display: none;
+            margin-top: 2rem;
+            padding: 2rem;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        .result-title {
+            font-size: 1.5rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+            border-bottom: 2px solid var(--secondary);
+            padding-bottom: 0.5rem;
+        }
+
+        .result-item {
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-left: 4px solid var(--secondary);
+            border-radius: 5px;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+            font-size: 1.2rem;
+            color: var(--primary);
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid var(--secondary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .constraints {
+            background: #fffde7;
+            padding: 1rem;
+            border-radius: 5px;
+            margin: 1rem 0;
+            border-left: 4px solid var(--warning);
+        }
+
+        .why-pso, .why-bayesian, .why-markov {
+            background: #e8f5e9;
+            padding: 1rem;
+            border-radius: 5px;
+            margin: 1rem 0;
+            border-left: 4px solid var(--success);
+        }
+
+        .alert {
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 5px;
+            font-weight: 600;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border-left: 4px solid #17a2b8;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+
+        .alert-warning {
+            background: #fff3cd;
+            color: #856404;
+            border-left: 4px solid #ffc107;
+        }
+
+        .chart-container {
+            height: 300px;
+            margin: 2rem 0;
+        }
+
+        .network-diagram {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            border: 2px dashed var(--secondary);
+            margin: 1rem 0;
+            text-align: center;
+        }
+
+        .markov-states {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .state-box {
+            padding: 1rem;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .state-lancar {
+            background: #d1f7d1;
+            border-left: 4px solid #27ae60;
+        }
+
+        .state-kurang-lancar {
+            background: #fff3cd;
+            border-left: 4px solid #f39c12;
+        }
+
+        .state-macet {
+            background: #ffd6d6;
+            border-left: 4px solid #e74c3c;
+        }
+
+        .state-writeoff {
+            background: #ffcccc;
+            border-left: 4px solid #c0392b;
+        }
+
+        .transition-matrix {
+            overflow-x: auto;
+        }
+
+        .matrix-cell {
+            padding: 0.5rem;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+
+        .matrix-header {
+            background: var(--primary);
+            color: white;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .card {
+                padding: 1rem;
+            }
+            
+            .form-group {
+                margin-bottom: 1rem;
+            }
+            
+            .tabs {
+                flex-direction: column;
+            }
+            
+            .bayesian-inputs, .markov-inputs {
+                grid-template-columns: 1fr;
+            }
+            
+            .markov-states {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📊 PSO, Bayesian & Markov Chain</h1>
+            <p class="subtitle">Optimasi, Diagnostik & Prediksi dalam Satu Platform</p>
+        </header>
+
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="psotab">PSO - Optimasi Produksi</button>
+            <button class="tab-btn" data-tab="bayesiantab">Bayesian - Diagnosis Penyakit</button>
+            <button class="tab-btn" data-tab="markovtab">Markov - Prediksi Kredit</button>
+        </div>
+
+        <!-- KASUS 1: PSO -->
+        <div id="psotab" class="tab-content active">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">📌 Data Sampel Produk</h2>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Produk</th>
+                            <th>Waktu Mesin (jam)</th>
+                            <th>Bahan Baku (kg)</th>
+                            <th>Keuntungan/Unit (Rp)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Produk A</td>
+                            <td>2</td>
+                            <td>3</td>
+                            <td>50.000</td>
+                        </tr>
+                        <tr>
+                            <td>Produk B</td>
+                            <td>3</td>
+                            <td>2</td>
+                            <td>40.000</td>
+                        </tr>
+                        <tr>
+                            <td>Produk C</td>
+                            <td>1</td>
+                            <td>4</td>
+                            <td>30.000</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">⚖️ Batasan (Constraints)</h2>
+                </div>
+                <div class="constraints">
+                    <p><strong>Total Waktu Mesin Tersedia:</strong> 100 jam/hari</p>
+                    <p><strong>Total Bahan Baku Tersedia:</strong> 120 kg/hari</p>
+                    <p><strong>Kapasitas Gudang:</strong> 50 unit total</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">⚙️ Parameter PSO</h2>
+                </div>
+                <div class="form-group">
+                    <label for="particles">Jumlah Partikel:</label>
+                    <input type="number" id="particles" value="30" min="10" max="100">
+                </div>
+                <div class="form-group">
+                    <label for="iterations">Jumlah Iterasi:</label>
+                    <input type="number" id="iterations" value="100" min="10" max="500">
+                </div>
+                <div class="form-group">
+                    <label for="w">Inertia Weight (w):</label>
+                    <input type="number" id="w" value="0.729" step="0.001" min="0.1" max="1.0">
+                </div>
+                <div class="form-group">
+                    <label for="c1">Cognitive Coefficient (c1):</label>
+                    <input type="number" id="c1" value="1.49445" step="0.001" min="0.1" max="3.0">
+                </div>
+                <div class="form-group">
+                    <label for="c2">Social Coefficient (c2):</label>
+                    <input type="number" id="c2" value="1.49445" step="0.001" min="0.1" max="3.0">
+                </div>
+                <div class="form-group">
+                    <label for="bounds">Batasan (Bounds):</label>
+                    <input type="text" id="bounds" value="[0, 50]" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="dimensions">Dimensi:</label>
+                    <input type="number" id="dimensions" value="3" min="1" max="5" readonly>
+                </div>
+                <button id="run-pso" class="btn btn-primary">🚀 Jalankan Optimasi PSO</button>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">✅ Mengapa PSO Cocok?</h2>
+                </div>
+                <div class="why-pso">
+                    <ul>
+                        <li>Ruang pencarian kontinu dan multidimensi</li>
+                        <li>Ada constraint yang kompleks</li>
+                        <li>Fungsi objektif non-linear</li>
+                        <li>Butuh pencarian global (bukan lokal)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div id="loading-psotab" class="loading">
+                <div class="loading-spinner"></div>
+                <p>Menghitung optimasi... Harap tunggu beberapa detik.</p>
+            </div>
+
+            <div id="result-psotab" class="result-container">
+                <h2 class="result-title">🏆 Hasil Optimasi PSO</h2>
+                <div id="result-content-psotab">
+                    <!-- Hasil akan ditampilkan di sini -->
+                </div>
+            </div>
+        </div>
+
+        <!-- KASUS 2: BAYESIAN NETWORK -->
+        <div id="bayesiantab" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">🧠 Bayesian Network - Diagnosis Penyakit Jantung</h2>
+                </div>
+                <div class="network-diagram">
+                    <h3>Struktur Jaringan Bayes</h3>
+                    <p>Merokok → Penyakit Jantung ← Usia</p>
+                    <p>Penyakit Jantung → Nyeri Dada, Sesak Napas, Lelah Berlebih</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">📊 Tabel Probabilitas (CPT)</h2>
+                </div>
+                <div class="form-group">
+                    <h3>P(Merokok)</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Nilai</th>
+                                <th>Probabilitas</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Ya</td>
+                                <td>0.30</td>
+                            </tr>
+                            <tr>
+                                <td>Tidak</td>
+                                <td>0.70</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="form-group">
+                    <h3>P(Usia)</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Nilai</th>
+                                <th>Probabilitas</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Muda (<50)</td>
+                                <td>0.60</td>
+                            </tr>
+                            <tr>
+                                <td>Tua (≥50)</td>
+                                <td>0.40</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="form-group">
+                    <h3>P(Penyakit Jantung | Merokok, Usia)</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Merokok</th>
+                                <th>Usia</th>
+                                <th>P(Jantung=Ya)</th>
+                                <th>P(Jantung=Tidak)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Ya</td>
+                                <td>Tua</td>
+                                <td>0.70</td>
+                                <td>0.30</td>
+                            </tr>
+                            <tr>
+                                <td>Ya</td>
+                                <td>Muda</td>
+                                <td>0.40</td>
+                                <td>0.60</td>
+                            </tr>
+                            <tr>
+                                <td>Tidak</td>
+                                <td>Tua</td>
+                                <td>0.25</td>
+                                <td>0.75</td>
+                            </tr>
+                            <tr>
+                                <td>Tidak</td>
+                                <td>Muda</td>
+                                <td>0.05</td>
+                                <td>0.95</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="form-group">
+                    <h3>P(Gejala | Penyakit Jantung)</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Penyakit Jantung</th>
+                                <th>P(Nyeri Dada)</th>
+                                <th>P(Sesak Napas)</th>
+                                <th>P(Lelah)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Ya</td>
+                                <td>0.80</td>
+                                <td>0.70</td>
+                                <td>0.60</td>
+                            </tr>
+                            <tr>
+                                <td>Tidak</td>
+                                <td>0.10</td>
+                                <td>0.15</td>
+                                <td>0.30</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">🏥 Kasus Pasien</h2>
+                </div>
+                <div class="form-group">
+                    <p><strong>Kasus:</strong> Seorang pasien (Tua, Tidak Merokok) mengalami Nyeri Dada dan Sesak Napas.</p>
+                    <p><strong>Pertanyaan:</strong> Berapa P(Penyakit Jantung = Ya | Nyeri Dada, Sesak Napas)?</p>
+                </div>
+                <div class="bayesian-inputs">
+                    <div class="form-group">
+                        <label for="age">Usia Pasien:</label>
+                        <select id="age">
+                            <option value="muda">Muda (<50)</option>
+                            <option value="tua" selected>Tua (≥50)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="smoking">Merokok:</label>
+                        <select id="smoking">
+                            <option value="ya">Ya</option>
+                            <option value="tidak" selected>Tidak</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="symptom1">Gejala 1:</label>
+                        <select id="symptom1">
+                            <option value="nyeri_dada" selected>Nyeri Dada</option>
+                            <option value="sesak_napas">Sesak Napas</option>
+                            <option value="lelah">Lelah Berlebih</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="symptom2">Gejala 2:</label>
+                        <select id="symptom2">
+                            <option value="sesak_napas" selected>Sesak Napas</option>
+                            <option value="nyeri_dada">Nyeri Dada</option>
+                            <option value="lelah">Lelah Berlebih</option>
+                        </select>
+                    </div>
+                </div>
+                <button id="run-bayesian" class="btn btn-primary">🧮 Hitung Probabilitas</button>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">✅ Mengapa Bayesian Cocok?</h2>
+                </div>
+                <div class="why-bayesian">
+                    <ul>
+                        <li>Ada hubungan kausal antar variabel</li>
+                        <li>Perlu menghitung probabilitas kondisional</li>
+                        <li>Uncertainty quantification penting</li>
+                        <li>Multiple evidence (gejala) untuk inferensi</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div id="loading-bayesiantab" class="loading">
+                <div class="loading-spinner"></div>
+                <p>Menghitung probabilitas... Harap tunggu beberapa detik.</p>
+            </div>
+
+            <div id="result-bayesiantab" class="result-container">
+                <h2 class="result-title">📊 Hasil Perhitungan Bayesian</h2>
+                <div id="result-content-bayesiantab">
+                    <!-- Hasil akan ditampilkan di sini -->
+                </div>
+            </div>
+        </div>
+
+        <!-- KASUS 3: MARKOV CHAIN -->
+        <div id="markovtab" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">📈 Markov Chain - Prediksi Status Kredit Nasabah</h2>
+                </div>
+                <div class="form-group">
+                    <p><strong>Deskripsi Masalah:</strong> Bank ingin memprediksi perubahan status kredit nasabah dari bulan ke bulan. Status: Lancar → Kurang Lancar → Macet → Write-off.</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">📊 Data Historis (1000 nasabah, 12 bulan)</h2>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Transisi</th>
+                            <th>Jumlah Kejadian</th>
+                            <th>Probabilitas</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Lancar → Lancar</td>
+                            <td>850</td>
+                            <td>0.85</td>
+                        </tr>
+                        <tr>
+                            <td>Lancar → Kurang Lancar</td>
+                            <td>120</td>
+                            <td>0.12</td>
+                        </tr>
+                        <tr>
+                            <td>Lancar → Macet</td>
+                            <td>30</td>
+                            <td>0.03</td>
+                        </tr>
+                        <tr>
+                            <td>Kurang Lancar → Lancar</td>
+                            <td>200</td>
+                            <td>0.40</td>
+                        </tr>
+                        <tr>
+                            <td>Kurang Lancar → Kurang Lancar</td>
+                            <td>150</td>
+                            <td>0.30</td>
+                        </tr>
+                        <tr>
+                            <td>Kurang Lancar → Macet</td>
+                            <td>150</td>
+                            <td>0.30</td>
+                        </tr>
+                        <tr>
+                            <td>Macet → Macet</td>
+                            <td>350</td>
+                            <td>0.70</td>
+                        </tr>
+                        <tr>
+                            <td>Macet → Write-off</td>
+                            <td>100</td>
+                            <td>0.20</td>
+                        </tr>
+                        <tr>
+                            <td>Write-off → Write-off</td>
+                            <td>500</td>
+                            <td>1.00</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">🔄 Matriks Transisi P</h2>
+                </div>
+                <div class="transition-matrix">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Dari \ Ke</th>
+                                <th>Lancar</th>
+                                <th>K. Lancar</th>
+                                <th>Macet</th>
+                                <th>Write-off</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Lancar</strong></td>
+                                <td style="background: #d1f7d1; font-weight: bold;">0.85</td>
+                                <td>0.12</td>
+                                <td>0.03</td>
+                                <td>0.00</td>
+                            </tr>
+                            <tr>
+                                <td><strong>K. Lancar</strong></td>
+                                <td>0.40</td>
+                                <td style="background: #fff3cd; font-weight: bold;">0.30</td>
+                                <td>0.30</td>
+                                <td>0.00</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Macet</strong></td>
+                                <td>0.00</td>
+                                <td>0.10</td>
+                                <td style="background: #ffd6d6; font-weight: bold;">0.70</td>
+                                <td>0.20</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Write-off</strong></td>
+                                <td>0.00</td>
+                                <td>0.00</td>
+                                <td>0.00</td>
+                                <td style="background: #ffcccc; font-weight: bold;">1.00</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">📈 Distribusi Awal (Portfolio Saat Ini)</h2>
+                </div>
+                <div class="markov-states">
+                    <div class="state-box state-lancar">
+                        <h3>70%</h3>
+                        <p>Lancar</p>
+                    </div>
+                    <div class="state-box state-kurang-lancar">
+                        <h3>15%</h3>
+                        <p>Kurang Lancar</p>
+                    </div>
+                    <div class="state-box state-macet">
+                        <h3>10%</h3>
+                        <p>Macet</p>
+                    </div>
+                    <div class="state-box state-writeoff">
+                        <h3>5%</h3>
+                        <p>Write-off</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">📅 Prediksi Status Kredit</h2>
+                </div>
+                <div class="form-group">
+                    <label for="months">Prediksi untuk berapa bulan ke depan?</label>
+                    <input type="number" id="months" value="3" min="1" max="12">
+                </div>
+                <div class="form-group">
+                    <label for="initial_state">Distribusi Awal (opsional, jika ingin custom):</label>
+                    <div class="markov-inputs">
+                        <div class="form-group">
+                            <label>Lancar (%):</label>
+                            <input type="number" id="lancar_pct" value="70" min="0" max="100">
+                        </div>
+                        <div class="form-group">
+                            <label>Kurang Lancar (%):</label>
+                            <input type="number" id="kurang_lancar_pct" value="15" min="0" max="100">
+                        </div>
+                        <div class="form-group">
+                            <label>Macet (%):</label>
+                            <input type="number" id="macet_pct" value="10" min="0" max="100">
+                        </div>
+                        <div class="form-group">
+                            <label>Write-off (%):</label>
+                            <input type="number" id="writeoff_pct" value="5" min="0" max="100">
+                        </div>
+                    </div>
+                </div>
+                <button id="run-markov" class="btn btn-primary">🔮 Prediksi Status Kredit</button>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">✅ Mengapa Markov Chain Cocok?</h2>
+                </div>
+                <div class="why-markov">
+                    <ul>
+                        <li>Proses bersifat sekuensial (waktu diskrit)</li>
+                        <li>Memenuhi Markov Property (future depends only on present)</li>
+                        <li>State yang jelas dan terdefinisi</li>
+                        <li>Transisi probabilistik antar state</li>
+                        <li>Write-off adalah absorbing state (tidak bisa kembali)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div id="loading-markovtab" class="loading">
+                <div class="loading-spinner"></div>
+                <p>Menghitung prediksi... Harap tunggu beberapa detik.</p>
+            </div>
+
+            <div id="result-markovtab" class="result-container">
+                <h2 class="result-title">📊 Hasil Prediksi Status Kredit</h2>
+                <div id="result-content-markovtab">
+                    <!-- Hasil akan ditampilkan di sini -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tab switching
+        document.querySelectorAll('.tab-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                // Remove active class from all buttons and tabs
+                document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+                
+                // Add active class to clicked button and corresponding tab
+                this.classList.add('active');
+                const tabId = this.getAttribute('data-tab');
+                document.getElementById(tabId).classList.add('active');
+            });
+        });
+
+        // PSO Button
+        document.getElementById('run-pso').addEventListener('click', function() {
+            const particles = parseInt(document.getElementById('particles').value);
+            const iterations = parseInt(document.getElementById('iterations').value);
+            const w = parseFloat(document.getElementById('w').value);
+            const c1 = parseFloat(document.getElementById('c1').value);
+            const c2 = parseFloat(document.getElementById('c2').value);
+            const bounds = [0, 50];
+            const dimensions = 3;
+
+            if (isNaN(particles) || isNaN(iterations) || isNaN(w) || isNaN(c1) || isNaN(c2)) {
+                alert('Semua parameter harus diisi dengan angka yang valid!');
+                return;
+            }
+
+            document.getElementById('loading-psotab').style.display = 'block';
+            document.getElementById('result-psotab').style.display = 'none';
+
+            fetch('/optimize', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    particles: particles,
+                    iterations: iterations,
+                    w: w,
+                    c1: c1,
+                    c2: c2,
+                    bounds: bounds,
+                    dimensions: dimensions
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('loading-psotab').style.display = 'none';
+                
+                if (data.error) {
+                    document.getElementById('result-content-psotab').innerHTML = `
+                        <div class="alert alert-warning">
+                            ${data.error}
+                        </div>
+                    `;
+                } else {
+                    const resultHtml = `
+                        <div class="result-item">
+                            <strong>📈 Kombinasi Produksi Optimal:</strong><br>
+                            Produk A: <span style="color: #2c3e50; font-weight: bold;">${data.best_solution[0].toFixed(0)} unit</span><br>
+                            Produk B: <span style="color: #2c3e50; font-weight: bold;">${data.best_solution[1].toFixed(0)} unit</span><br>
+                            Produk C: <span style="color: #2c3e50; font-weight: bold;">${data.best_solution[2].toFixed(0)} unit</span>
+                        </div>
+                        <div class="result-item">
+                            <strong>💰 Keuntungan Maksimal:</strong><br>
+                            <span style="color: #2ecc71; font-size: 1.2rem; font-weight: bold;">Rp ${data.max_profit.toLocaleString('id-ID')}</span>
+                        </div>
+                        <div class="result-item">
+                            <strong>⏱️ Waktu Mesin Digunakan:</strong><br>
+                            ${data.machine_time_used} jam (dari 100 jam tersedia)
+                        </div>
+                        <div class="result-item">
+                            <strong>📦 Bahan Baku Digunakan:</strong><br>
+                            ${data.raw_material_used} kg (dari 120 kg tersedia)
+                        </div>
+                        <div class="result-item">
+                            <strong>📦 Total Unit Produksi:</strong><br>
+                            ${data.total_units} unit (dari kapasitas gudang 50 unit)
+                        </div>
+                        <div class="result-item">
+                            <strong>🔁 Jumlah Iterasi:</strong><br>
+                            ${data.iterations} iterasi
+                        </div>
+                        <div class="result-item">
+                            <strong>⏱️ Waktu Eksekusi:</strong><br>
+                            ${data.execution_time.toFixed(2)} detik
+                        </div>
+                        <div class="alert alert-success">
+                            ✅ Solusi optimal ditemukan! PSO berhasil mengoptimalkan jadwal produksi.
+                        </div>
+                    `;
+                    
+                    document.getElementById('result-content-psotab').innerHTML = resultHtml;
+                    document.getElementById('result-psotab').style.display = 'block';
+                }
+            })
+            .catch(error => {
+                document.getElementById('loading-psotab').style.display = 'none';
+                document.getElementById('result-content-psotab').innerHTML = `
+                    <div class="alert alert-warning">
+                        Terjadi kesalahan saat menjalankan optimasi: ${error.message}
+                    </div>
+                `;
+                document.getElementById('result-psotab').style.display = 'block';
+            });
+        });
+
+        // Bayesian Button
+        document.getElementById('run-bayesian').addEventListener('click', function() {
+            const age = document.getElementById('age').value;
+            const smoking = document.getElementById('smoking').value;
+            const symptom1 = document.getElementById('symptom1').value;
+            const symptom2 = document.getElementById('symptom2').value;
+
+            // Validasi gejala unik
+            if (symptom1 === symptom2) {
+                alert('Pilih dua gejala yang berbeda!');
+                return;
+            }
+
+            document.getElementById('loading-bayesiantab').style.display = 'block';
+            document.getElementById('result-bayesiantab').style.display = 'none';
+
+            fetch('/diagnose', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    age: age,
+                    smoking: smoking,
+                    symptoms: [symptom1, symptom2]
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('loading-bayesiantab').style.display = 'none';
+                
+                if (data.error) {
+                    document.getElementById('result-content-bayesiantab').innerHTML = `
+                        <div class="alert alert-warning">
+                            ${data.error}
+                        </div>
+                    `;
+                } else {
+                    const resultHtml = `
+                        <div class="result-item">
+                            <strong>👤 Profil Pasien:</strong><br>
+                            Usia: <span style="font-weight: bold;">${data.patient_profile.age}</span><br>
+                            Merokok: <span style="font-weight: bold;">${data.patient_profile.smoking}</span>
+                        </div>
+                        <div class="result-item">
+                            <strong>🩺 Gejala yang Diamati:</strong><br>
+                            ${data.patient_profile.symptoms.map(s => s.replace('_', ' ').toUpperCase()).join(', ')}
+                        </div>
+                        <div class="result-item">
+                            <strong>📊 Probabilitas Penyakit Jantung:</strong><br>
+                            <span style="color: #e74c3c; font-size: 1.2rem; font-weight: bold;">
+                                P(Jantung = Ya | Gejala) = ${data.probability_jantung_ya.toFixed(4)} (${(data.probability_jantung_ya * 100).toFixed(2)}%)
+                            </span>
+                        </div>
+                        <div class="result-item">
+                            <strong>📉 Probabilitas Tidak Sakit:</strong><br>
+                            P(Jantung = Tidak | Gejala) = ${data.probability_jantung_tidak.toFixed(4)} (${(data.probability_jantung_tidak * 100).toFixed(2)}%)
+                        </div>
+                        <div class="result-item">
+                            <strong>📝 Perhitungan Detail:</strong><br>
+                            P(Jantung=Ya) = ${data.details.p_jantung_ya.toFixed(4)}<br>
+                            P(Jantung=Tidak) = ${data.details.p_jantung_tidak.toFixed(4)}<br>
+                            P(Gejala|Jantung=Ya) = ${data.details.p_gejala_given_jantung_ya.toFixed(4)}<br>
+                            P(Gejala|Jantung=Tidak) = ${data.details.p_gejala_given_jantung_tidak.toFixed(4)}<br>
+                            P(Gejala) = ${data.details.p_gejala.toFixed(4)}
+                        </div>
+                        <div class="alert alert-success">
+                            ✅ Perhitungan Bayesian selesai! Probabilitas telah dihitung berdasarkan gejala dan riwayat pasien.
+                        </div>
+                    `;
+                    
+                    document.getElementById('result-content-bayesiantab').innerHTML = resultHtml;
+                    document.getElementById('result-bayesiantab').style.display = 'block';
+                }
+            })
+            .catch(error => {
+                document.getElementById('loading-bayesiantab').style.display = 'none';
+                document.getElementById('result-content-bayesiantab').innerHTML = `
+                    <div class="alert alert-warning">
+                        Terjadi kesalahan saat menghitung probabilitas: ${error.message}
+                    </div>
+                `;
+                document.getElementById('result-bayesiantab').style.display = 'block';
+            });
+        });
+
+        // Markov Button
+        document.getElementById('run-markov').addEventListener('click', function() {
+            const months = parseInt(document.getElementById('months').value);
+            const lancar_pct = parseFloat(document.getElementById('lancar_pct').value);
+            const kurang_lancar_pct = parseFloat(document.getElementById('kurang_lancar_pct').value);
+            const macet_pct = parseFloat(document.getElementById('macet_pct').value);
+            const writeoff_pct = parseFloat(document.getElementById('writeoff_pct').value);
+
+            // Validasi input
+            if (isNaN(months) || months < 1) {
+                alert('Jumlah bulan harus bilangan bulat positif!');
+                return;
+            }
+
+            // Validasi distribusi awal
+            const total = lancar_pct + kurang_lancar_pct + macet_pct + writeoff_pct;
+            if (Math.abs(total - 100) > 0.01) {
+                alert('Total distribusi awal harus 100%!');
+                return;
+            }
+
+            document.getElementById('loading-markovtab').style.display = 'block';
+            document.getElementById('result-markovtab').style.display = 'none';
+
+            fetch('/predict_credit', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    months: months,
+                    initial_distribution: [
+                        lancar_pct / 100,
+                        kurang_lancar_pct / 100,
+                        macet_pct / 100,
+                        writeoff_pct / 100
+                    ]
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('loading-markovtab').style.display = 'none';
+                
+                if (data.error) {
+                    document.getElementById('result-content-markovtab').innerHTML = `
+                        <div class="alert alert-warning">
+                            ${data.error}
+                        </div>
+                    `;
+                } else {
+                    const resultHtml = `
+                        <div class="result-item">
+                            <strong>📅 Prediksi untuk ${data.months} Bulan Ke Depan:</strong>
+                        </div>
+                        <div class="result-item">
+                            <strong>📊 Distribusi Akhir:</strong><br>
+                            Lancar: <span style="color: #27ae60; font-weight: bold;">${(data.final_distribution[0] * 100).toFixed(2)}%</span><br>
+                            Kurang Lancar: <span style="color: #f39c12; font-weight: bold;">${(data.final_distribution[1] * 100).toFixed(2)}%</span><br>
+                            Macet: <span style="color: #e74c3c; font-weight: bold;">${(data.final_distribution[2] * 100).toFixed(2)}%</span><br>
+                            Write-off: <span style="color: #c0392b; font-weight: bold;">${(data.final_distribution[3] * 100).toFixed(2)}%</span>
+                        </div>
+                        <div class="result-item">
+                            <strong>📈 Perubahan dari Awal:</strong><br>
+                            Lancar: ${(data.final_distribution[0] * 100 - data.initial_distribution[0] * 100).toFixed(2)}%<br>
+                            Kurang Lancar: ${(data.final_distribution[1] * 100 - data.initial_distribution[1] * 100).toFixed(2)}%<br>
+                            Macet: ${(data.final_distribution[2] * 100 - data.initial_distribution[2] * 100).toFixed(2)}%<br>
+                            Write-off: ${(data.final_distribution[3] * 100 - data.initial_distribution[3] * 100).toFixed(2)}%
+                        </div>
+                        <div class="result-item">
+                            <strong>⏳ Waktu Eksekusi:</strong><br>
+                            ${data.execution_time.toFixed(2)} detik
+                        </div>
+                        <div class="alert alert-success">
+                            ✅ Prediksi Markov Chain selesai! Status kredit nasabah telah diprediksi untuk ${data.months} bulan ke depan.
+                        </div>
+                    `;
+                    
+                    document.getElementById('result-content-markovtab').innerHTML = resultHtml;
+                    document.getElementById('result-markovtab').style.display = 'block';
+                }
+            })
+            .catch(error => {
+                document.getElementById('loading-markovtab').style.display = 'none';
+                document.getElementById('result-content-markovtab').innerHTML = `
+                    <div class="alert alert-warning">
+                        Terjadi kesalahan saat memprediksi status kredit: ${error.message}
+                    </div>
+                `;
+                document.getElementById('result-markovtab').style.display = 'block';
+            });
+        });
+    </script>
+</body>
+</html>
